@@ -1,0 +1,42 @@
+---
+#play01
+  - name: Removing Installed Packages
+    hosts: webserver
+    vars:
+      #firewall_pkg: firewalld
+      #firewall_svc: firewalld
+      web_pkg: httpd
+      web_svc: httpd
+      ssl_pkg: mod_ssl
+      #httpdconf_src: files/httpd.conf
+      #httpdconf_dest: /etc/httpd/conf/httpd.conf
+      #htaccess_src: files/.htaccess
+      #secrets_dir: /etc/httpd/secrets
+      #secrets_src: files/htpasswd
+      #secrets_dest: "{{ secrets_dir }}/htpasswd"
+      #web_root: /var/www/html
+    tasks:
+     - name: to disable web service
+       service:
+         name: "{{ web_svc }}"
+         state: stoped
+         enabled: false
+     - name: Remove all packages installed by Playbook.yml
+       yum:
+         name:
+           - "{{ firewall_pkg }}"
+           - "{{ web_pkg }}"
+           - "{{ ssl_pkg }}"
+         state: absent
+     - name: firewall service disabled
+       service:
+         name: "{{ firewall_svc }}"
+         state: stopped
+         enabled: true
+     - name: to close the port for web server
+       firewalld:
+         service: https
+         state: stopped
+         immediate: true
+         permanent: false
+#This playbook mught reuired few corrections
