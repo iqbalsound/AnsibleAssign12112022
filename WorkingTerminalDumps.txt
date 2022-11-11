@@ -1,0 +1,95 @@
+[student@workstation data-review]$ ansible-playbook --syntax-check --ask-vault-pass playbook.yml
+Vault password:
+ERROR! Decryption failed (no vault secrets were found that could decrypt) on /home/student/data-review/vars/secret.yml
+[student@workstation data-review]$ clear
+[student@workstation data-review]$ ansible-playbook --syntax-check --ask-vault-pass playbook.yml
+Vault password:
+
+playbook: playbook.yml
+[student@workstation data-review]$ ansible-playbook --syntax-check --ask-vault-pass playbook.yml
+Vault password:
+
+playbook: playbook.yml
+[student@workstation data-review]$ ansible-playbook playbook.yml --ask-vault-pass
+Vault password:
+
+PLAY [Installing and configuring the webserver with basic authentication] *************************
+
+TASK [Gathering Facts] ****************************************************************************
+ok: [serverb.lab.example.com]
+
+TASK [Necessary Latest packages to be installed] **************************************************
+changed: [serverb.lab.example.com]
+
+TASK [configuring the web service] ****************************************************************
+changed: [serverb.lab.example.com]
+
+TASK [Created after execution of lab data-review start Command] ***********************************
+ok: [serverb.lab.example.com]
+
+TASK [Created after execution of lab data-review start Command] ***********************************
+ok: [serverb.lab.example.com]
+
+TASK [.htaccess file] *****************************************************************************
+ok: [serverb.lab.example.com]
+
+TASK [to create index.html] ***********************************************************************
+ok: [serverb.lab.example.com]
+
+TASK [firewall service enable and started] ********************************************************
+changed: [serverb.lab.example.com]
+
+TASK [to open the port for the web server] ********************************************************
+ok: [serverb.lab.example.com]
+
+TASK [to enable web service and get it started] ***************************************************
+changed: [serverb.lab.example.com]
+
+PLAY [to test web server with its basic authentication] *******************************************
+
+TASK [Gathering Facts] ****************************************************************************
+ok: [localhost]
+
+TASK [to connect with web server using basic authentication] **************************************
+ok: [localhost]
+
+TASK [debug] **************************************************************************************
+ok: [localhost] => {
+    "auth_test.content": "serverb.lab.example.com (172.25.250.11) has been customized by Ansible.<br> By <br> Iqbl Uddin Khan <br> Lab 04 and Assignment <br> -------------------------- <br>"
+}
+
+PLAY RECAP ****************************************************************************************
+localhost                  : ok=3    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
+serverb.lab.example.com    : ok=10   changed=4    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
+
+[student@workstation data-review]$ ansible-playbook playbook02.yml
+
+PLAY [Removing Installed Packages] ****************************************************************
+
+TASK [Gathering Facts] ****************************************************************************
+ok: [serverb.lab.example.com]
+
+TASK [to disable web service] *********************************************************************
+changed: [serverb.lab.example.com]
+
+TASK [Remove all packages installed by Playbook.yml] **********************************************
+changed: [serverb.lab.example.com]
+
+TASK [firewall service disable] *******************************************************************
+fatal: [serverb.lab.example.com]: FAILED! => {"changed": false, "msg": "Could not find the requested service firewalld: host"}
+
+PLAY RECAP ****************************************************************************************
+serverb.lab.example.com    : ok=3    changed=2    unreachable=0    failed=1    skipped=0    rescued=0    ignored=0
+
+[student@workstation data-review]$ exit
+logout
+Connection to workstation closed.
+[kiosk@foundation0 ~]$ exit
+logout
+
+---------------------------------------------------------------------------------------------------
+
+Session stopped
+    - Press <return> to exit tab
+    - Press R to restart session
+    - Press S to save terminal output to file
