@@ -1,0 +1,114 @@
+#If you want to Task graded by Redhat-VM do not rename Playbook.yml
+---
+#play01
+  - name: Installing and configuring the webserver with basic authentication
+    hosts: webserver
+    vars:
+      firewall_pkg: firewalld
+      firewall_svc: firewalld
+      web_pkg: httpd
+      web_svc: httpd
+      ssl_pkg: mod_ssl
+      httpdconf_src: files/httpd.conf
+      httpdconf_dest: /etc/httpd/conf/httpd.conf
+      htaccess_src: files/.htaccess
+      secrets_dir: /etc/httpd/secrets
+      secrets_src: files/htpasswd
+      secrets_dest: "{{ secrets_dir }}/htpasswd"
+      web_root: /var/www/html
+    tasks:
+      - name: Necessary Latest packages to be installed
+        yum:
+          name:
+            - "{{ firewall_pkg }}"
+            - "{{ web_pkg }}"
+            - "{{ ssl_pkg }}"
+          state: latest
+      - name: configuring the web service
+        copy:
+          src: "{{ httpdconf_src }}"
+          dest: "{{ httpdconf_dest }}"
+          owner: root
+          group: root
+          mode: 0644
+      - name: Created after execution of lab data-review start Command
+        file:
+          path: "{{ secrets_dir }}"
+          state: directory
+          owner: apache
+          group: apache
+          mode: 0500
+      - name: Created after execution of lab data-review start Command
+        copy:
+          src: "{{ secrets_src }}"
+          dest: "{{ secrets_dest }}"
+          owner: apache
+          group: apache
+          mode: 0400
+      - name: .htaccess file 
+        copy:
+          src: "{{ htaccess_src }}"
+          dest: "{{ web_root }}/.htaccess"
+          owner: apache
+          group: apache
+          mode: 0400
+      - name: to create index.html
+        copy:
+          content: "{{ ansible_facts['fqdn'] }} ({{ ansible_facts['default_ipv4'] ['address'] }}) has been customized by Ansible.<br> By <br> Iqbl Uddin Khan<br> for Lab 04 and Assignment <br> -------------------------- <br>"
+          dest: "{{ web_root }}/index.html"
+      - name: firewall service enable and started
+        service:
+          name: "{{ firewall_svc }}"
+          state: started
+          enabled: true
+      - name: to open the port for the web server
+        firewalld:
+          service: https
+          state: enabled
+          immediate: true
+          permanent: true
+      - name: to enable web service and get it started
+        service:
+          name: "{{ web_svc }}"
+          state: started
+          enabled: true
+           
+#Play02
+  - name: to test web server with its basic authentication
+    hosts: localhost
+    become: no
+    vars:
+      - web_user: iqbal
+    vars_files:
+      - vars/secret.yml
+    tasks:
+      - name: to connect with web server using basic authentication
+        uri:
+          url: https://serverb.lab.example.com
+          validate_certs: no
+          force_basic_auth: yes
+          user: "{{ web_user }}"
+          password: "{{ web_pass }}"
+          return_content: yes
+          status_code: 200
+        register: auth_test
+      - debug:
+          var: auth_test.content
+#[student@workstation data-review]$ ansible-playbook --syntax-check playbook.yml
+#ERROR! vars file vars/secret.yml was not found
+#Could not find file on the Ansible Controller.
+#If you are using a module and expect the file to exist on the remote, see the remote_src option
+#[student@workstation data-review]$
+#[student@workstation data-review]$ mkdir vars
+#[student@workstation data-review]$ ansible-vault create vars/secret.yml
+#New Vault password: <testpass>
+#Confirm New Vault password: <testpass>
+#VI Text editor opned and pasted web_pass: <testpass> than :wq
+#[student@workstation data-review]$
+#[student@workstation data-review]$ ansible-playbook --syntax-check --ask-vault-pass playbook.yml
+#Vault password: <testpass>
+#
+#playbook: playbook.yml
+#[student@workstation data-review]$ ansible-playbook playbook.yml --ask-vault-pass
+#Use Web Browser to login in Serverb
+#Use provided login credentials
